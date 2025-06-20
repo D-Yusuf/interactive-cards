@@ -1,116 +1,71 @@
 'use client'
 import { useState } from 'react';
-import { Question } from '../types/game';
-import Timer from './Timer';
+import { Question } from '../types';
 
 interface QuestionModalProps {
-  question: Question;
+  question: Question | null;
   onClose: () => void;
-  onTeamSelect: (teamId: number) => void;
-  team1Name: string;
-  team2Name: string;
+  onCorrectAnswer: (teamId: 'firstTeam' | 'secondTeam') => void;
+  firstTeamName: string;
+  secondTeamName: string;
 }
 
-export default function QuestionModal({ 
-  question, 
-  onClose, 
-  onTeamSelect,
-  team1Name,
-  team2Name 
-}: QuestionModalProps) {
+export default function QuestionModal({ question, onClose, onCorrectAnswer, firstTeamName, secondTeamName }: QuestionModalProps) {
   const [showAnswer, setShowAnswer] = useState(false);
-  const [showTeamSelection, setShowTeamSelection] = useState(false);
 
-  const handleShowAnswer = () => {
+  if (!question) return null;
+
+  const handleRevealAnswer = () => {
     setShowAnswer(true);
-    setShowTeamSelection(true);
   };
 
-  const handleTeamSelect = (teamId: number) => {
-    onTeamSelect(teamId);
-    onClose();
-  };
-
-  const handleNoAnswer = () => {
-    onClose();
+  const handleTeamSelection = (teamId: 'firstTeam' | 'secondTeam') => {
+    onCorrectAnswer(teamId);
+    // Modal will be closed automatically by the parent component
   };
 
   return (
-    <div className="fixed inset-0 bg-game-dark/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-gradient-to-br from-game-light to-game-light/95 rounded-lg p-8 max-w-2xl w-full mx-4 relative shadow-2xl ">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 left-4 text-game-neutral hover:text-game-dark transition-colors"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <div className="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-2xl w-full text-center relative">
+        <button onClick={onClose} className="absolute top-4 left-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+        
+        {question.isAnswered && (
+          <div className="bg-yellow-600 text-white px-4 py-2 rounded-md mb-4">
+            ⚠️ هذا السؤال مجاب عليه بالفعل - يمكنك رؤيته مرة أخرى
+          </div>
+        )}
+        
+        <h2 className="text-3xl font-bold mb-4 text-cyan-400">{question.question}</h2>
+        
+        {!showAnswer ? (
+          <button
+            onClick={handleRevealAnswer}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-md text-lg transition-transform transform hover:scale-105"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-
-        {/* Timer positioned above the modal */}
-        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
-          <Timer onTimeUp={() => setShowTeamSelection(true)} isActive={!showTeamSelection} />
-        </div>
-
-        <div className="text-right">
-          <h2 className="text-3xl font-bold mb-4 text-game-dark">
-            {question.points} نقطة
-          </h2>
-          
-          <p className="text-2xl mb-6 text-game-dark">{question.question}</p>
-
-          {showAnswer && (
-            <div className="mb-6">
-              <p className="text-xl text-game-dark/80">{question.answer}</p>
-            </div>
-          )}
-
-          {!showAnswer && (
-            <button
-              onClick={handleShowAnswer}
-              className="bg-game-primary text-game-light px-6 py-3 rounded-lg text-xl hover:bg-game-primary/90 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
-            >
-              عرض الإجابة
-            </button>
-          )}
-
-          {showTeamSelection && (
-            <div className="flex flex-col gap-4 justify-center mt-6">
-              <div className="flex gap-4 justify-center">
+            {question.isAnswered ? 'إظهار الإجابة مرة أخرى' : 'إظهار الإجابة'}
+          </button>
+        ) : (
+          <div>
+            <p className="text-2xl font-semibold text-white my-6 bg-gray-700 p-4 rounded-md">{question.answer}</p>
+            <div className="mt-6">
+              <h3 className="text-xl mb-4 text-gray-300">لمن تذهب النقاط؟</h3>
+              <div className="flex justify-center gap-4">
                 <button
-                  onClick={() => handleTeamSelect(1)}
-                  className="bg-game-success text-game-light px-6 py-3 rounded-lg text-xl hover:bg-game-success/90 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                  onClick={() => handleTeamSelection('firstTeam')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md text-lg transition-transform transform hover:scale-105"
                 >
-                  {team1Name}
+                  {firstTeamName}
                 </button>
                 <button
-                  onClick={() => handleTeamSelect(2)}
-                  className="bg-game-danger text-game-light px-6 py-3 rounded-lg text-xl hover:bg-game-danger/90 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                  onClick={() => handleTeamSelection('secondTeam')}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-md text-lg transition-transform transform hover:scale-105"
                 >
-                  {team2Name}
+                  {secondTeamName}
                 </button>
               </div>
-              <button
-                onClick={handleNoAnswer}
-                className="bg-game-neutral text-game-light px-6 py-3 rounded-lg text-xl hover:bg-game-neutral/90 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
-              >
-                محد جاوب
-              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

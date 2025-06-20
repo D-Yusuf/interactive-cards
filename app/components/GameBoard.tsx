@@ -1,132 +1,95 @@
 'use client'
-import { useState } from 'react';
-import QuestionCard from './QuestionCard';
-import QuestionModal from './QuestionModal';
-import { Category } from '../types/game';
 
-const dummyCategories: Category[] = [
-  {
-    id: 1,
-    name: 'التاريخ',
-    questions: Array.from({ length: 10 }, (_, i) => ({
-      id: i + 1,
-      points: i + 1,
-      question: 'سؤال تجريبي',
-      answer: 'إجابة تجريبية',
-      isAnswered: false
-    }))
-  },
-  {
-    id: 2,
-    name: 'الجغرافيا',
-    questions: Array.from({ length: 10 }, (_, i) => ({
-      id: i + 1,
-      points: i + 1,
-      question: 'سؤال تجريبي',
-      answer: 'إجابة تجريبية',
-      isAnswered: false
-    }))
-  },
-  {
-    id: 3,
-    name: 'العلوم',
-    questions: Array.from({ length: 10 }, (_, i) => ({
-      id: i + 1,
-      points: i + 1,
-      question: 'سؤال تجريبي',
-      answer: 'إجابة تجريبية',
-      isAnswered: false
-    }))
-  },
-  {
-    id: 4,
-    name: 'الثقافة العامة',
-    questions: Array.from({ length: 10 }, (_, i) => ({
-      id: i + 1,
-      points: i + 1,
-      question: 'سؤال تجريبي',
-      answer: 'إجابة تجريبية',
-      isAnswered: false
-    }))
-  }
-];
+import { useState, useEffect } from 'react';
+import { Category, Question } from '../types';
 
 interface GameBoardProps {
-  onTeamScoreUpdate: (teamId: number, points: number) => void;
+  categories: Category[];
+  onSelectQuestion: (question: Question) => void;
 }
 
-export default function GameBoard({ onTeamScoreUpdate }: GameBoardProps) {
-  const [categories, setCategories] = useState<Category[]>(dummyCategories);
-  const [selectedQuestion, setSelectedQuestion] = useState<{ categoryId: number; questionId: number } | null>(null);
+interface ProcessedCategory extends Category {
+  displayQuestions: (Question | null)[];
+}
 
-  const handleQuestionClick = (categoryId: number, questionId: number) => {
-    setSelectedQuestion({ categoryId, questionId });
-  };
+export default function GameBoard({ categories, onSelectQuestion }: GameBoardProps) {
+  const [processedCategories, setProcessedCategories] = useState<ProcessedCategory[]>([]);
 
-  const handleTeamSelect = (teamId: number) => {
-    if (!selectedQuestion) return;
+  useEffect(() => {
+    const newProcessedCategories = categories.map(category => {
+      const questionsByPoints = new Map<number, Question[]>();
+      
+      for (const q of category.questions) {
+        if (q.points >= 1 && q.points <= 10) {
+          if (!questionsByPoints.has(q.points)) {
+            questionsByPoints.set(q.points, []);
+          }
+          questionsByPoints.get(q.points)!.push(q);
+        }
+      }
 
-    const { categoryId, questionId } = selectedQuestion;
-    const category = categories.find(c => c.id === categoryId);
-    const question = category?.questions.find(q => q.id === questionId);
+      const pointValues = Array.from({ length: 10 }, (_, i) => i + 1);
+      
+      const selectedQuestions: (Question | null)[] = pointValues.map(point => {
+        const group = questionsByPoints.get(point);
+        if (group && group.length > 0) {
+          const randomIndex = Math.floor(Math.random() * group.length);
+          return group[randomIndex];
+        }
+        return null;
+      });
 
-    if (question) {
-      // Update the question as answered
-      setCategories(prevCategories => 
-        prevCategories.map(cat => 
-          cat.id === categoryId 
-            ? {
-                ...cat,
-                questions: cat.questions.map(q => 
-                  q.id === questionId ? { ...q, isAnswered: true } : q
-                )
-              }
-            : cat
-        )
-      );
-
-      // Update team score through parent component
-      onTeamScoreUpdate(teamId, question.points);
-    }
-
-    setSelectedQuestion(null);
-  };
-
-  const getSelectedQuestion = () => {
-    if (!selectedQuestion) return null;
-    const category = categories.find(c => c.id === selectedQuestion.categoryId);
-    return category?.questions.find(q => q.id === selectedQuestion.questionId) || null;
-  };
+      return {
+        ...category,
+        displayQuestions: selectedQuestions,
+      };
+    });
+    setProcessedCategories(newProcessedCategories);
+  }, [categories]);
 
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {categories.map((category) => (
-          <div key={category.id} className="bg-game-light/10 backdrop-blur-sm rounded-lg p-4">
-            <h2 className="text-2xl font-bold mb-4 text-center text-game-light">{category.name}</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {category.questions.map((question) => (
-                <QuestionCard
-                  key={question.id}
-                  points={question.points}
-                  isAnswered={question.isAnswered}
-                  onClick={() => handleQuestionClick(category.id, question.id)}
-                />
-              ))}
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {processedCategories.map((category) => (
+        <div key={category._id} className="bg-gray-800 rounded-lg shadow-lg p-4 flex flex-col">
+          <h2 className="text-2xl font-bold text-center mb-4 text-white">
+            {category.name}
+          </h2>
+          <div className="grid grid-cols-2 gap-2 flex-grow">
+            {category.displayQuestions.map((question, index) => {
+              const points = index + 1;
+              if (question) {
+                return (
+                  <button
+                    key={question._id}
+                    onClick={() => onSelectQuestion(question)}
+                    className={`font-bold py-3 px-4 rounded-md transition-transform transform hover:scale-105 ${
+                      question.isAnswered 
+                        ? 'text-gray-200 hover:opacity-80 cursor-pointer' 
+                        : 'text-white hover:opacity-80'
+                    }`}
+                    style={{ 
+                      backgroundColor: question.isAnswered ? '#4B5563' : category.color,
+                      border: question.isAnswered ? '2px solid #6B7280' : '2px solid transparent'
+                    }}
+                    title={question.isAnswered ? 'سؤال مجاب عليه - يمكنك رؤيته مرة أخرى' : ''}
+                  >
+                    {points}
+                  </button>
+                );
+              } else {
+                return (
+                  <div
+                    key={index}
+                    className="bg-gray-900 flex items-center justify-center text-gray-600 font-bold py-3 px-4 rounded-md cursor-not-allowed"
+                  >
+                    {points}
+                  </div>
+                );
+              }
+            })}
           </div>
-        ))}
-      </div>
-
-      {selectedQuestion && (
-        <QuestionModal
-          question={getSelectedQuestion()!}
-          onClose={() => setSelectedQuestion(null)}
-          onTeamSelect={handleTeamSelect}
-          team1Name="الفريق الأول"
-          team2Name="الفريق الثاني"
-        />
-      )}
-    </>
+        </div>
+      ))}
+    </div>
   );
 } 

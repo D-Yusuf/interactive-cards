@@ -1,0 +1,21 @@
+{
+  "tasks": {
+    "dev": "deno run -A --watch main.ts",
+    "deploy": "deployctl deployments redeploy --prod --project ma3ali"
+  },
+  "imports": {
+    "oak": "jsr:@oak/oak@^17.1.4",
+    "@std/assert": "jsr:@std/assert@1",
+    "path": "jsr:@std/path",
+    "mongoose": "npm:mongoose@^8.0.0",
+    "multer": "npm:multer@^1.4.5-lts.1"
+  },
+  "deploy": {
+    "project": "3972b5ce-9a45-4145-9081-8c75db4b0ce1",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "main.ts"
+  }
+}
