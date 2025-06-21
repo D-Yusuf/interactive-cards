@@ -5,6 +5,7 @@ import questionsRouter from "./api/routes/questions.ts";
 import categoriesRouter from "./api/routes/categories.ts";
 import gameRouter from "./api/routes/game.ts";
 import seedData from "./seed.ts";
+import { Router, RouterContext } from "oak/router";
 // Load environment variables
 await import("./env.ts");
 
@@ -23,6 +24,12 @@ try {
 }
 
 // Routes
+const appRouter = new Router();
+appRouter.get('/', (ctx: RouterContext<"/">) => {
+  ctx.response.body = 'Hello World';
+});
+app.use(appRouter.routes());
+app.use(appRouter.allowedMethods());
 app.use(questionsRouter.routes());
 app.use(questionsRouter.allowedMethods());
 app.use(categoriesRouter.routes());

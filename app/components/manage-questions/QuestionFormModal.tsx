@@ -99,16 +99,17 @@ export default function QuestionFormModal({ isOpen, onClose, onSubmit, initialDa
               {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
             </select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <input
-              id="isAnswered"
               name="isAnswered"
               type="checkbox"
               checked={formData.isAnswered || false}
               onChange={handleChange}
-              className="h-5 w-5 rounded bg-gray-700 border-gray-600 text-cyan-600 focus:ring-cyan-500"
+              className="w-5 h-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
             />
-            <label htmlFor="isAnswered" className="text-gray-300">معلّم كمجاب عليه</label>
+            <label className="text-gray-300">
+              السؤال مجاب عليه
+            </label>
           </div>
           <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md">
             {initialData ? 'حفظ التعديلات' : 'إضافة السؤال'}

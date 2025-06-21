@@ -98,6 +98,11 @@ export default function StartPage() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('axdxmxixn');
+    setIsAdmin(false);
+  };
+
   return (
     <div className="min-h-screen gradient-bg-dark text-white relative overflow-hidden">
       {/* Animated background elements */}
@@ -130,9 +135,15 @@ export default function StartPage() {
               </div>
             </>
           )}
-          <AdminButton onClick={() => setLoginModalOpen(true)} className="bg-gray-700/20 hover:bg-gray-700/30 text-sm py-2 px-4">
-            تسجيل الدخول
-          </AdminButton>
+          {!isAdmin ? (
+            <AdminButton onClick={() => setLoginModalOpen(true)} className="bg-gray-700/20 hover:bg-gray-700/30 text-sm py-2 px-4">
+              تسجيل الدخول
+            </AdminButton>
+          ) : (
+            <AdminButton onClick={handleLogout} className="bg-gray-700/20 hover:bg-gray-700/30 text-sm py-2 px-4">
+              تسجيل الخروج
+            </AdminButton>
+          )}
         </div>
 
         {isLoginModalOpen && (

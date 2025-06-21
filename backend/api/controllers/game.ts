@@ -124,13 +124,13 @@ export const endGame = async (ctx: RouterContext<"/games/:id/end">) => {
         }
         
         // Get all questions that were selected for this game
-        const selectedQuestionIds = game.selectedQuestions.map(sq => sq.questionId);
+        const selectedQuestionIds = game.selectedQuestions.map((sq: { questionId: { toString: () => string } }) => sq.questionId.toString());
         
         // Get answered question IDs from the game
-        const answeredQuestionIds = game.answeredQuestions.map(aq => aq.questionId);
+        const answeredQuestionIds = game.answeredQuestions.map((aq: { questionId: { toString: () => string } }) => aq.questionId.toString());
         
         // Find unanswered questions (selected but not answered)
-        const unansweredQuestionIds = selectedQuestionIds.filter(qId => 
+        const unansweredQuestionIds = selectedQuestionIds.filter((qId: string) => 
             !answeredQuestionIds.includes(qId)
         );
         

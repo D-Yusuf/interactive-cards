@@ -1,7 +1,7 @@
 {
   "tasks": {
-    "dev": "deno run -A --watch main.ts",
-    "deploy": "deployctl deployments redeploy --prod --project ma3ali"
+    "dev": "deno run -A --watch backend/main.ts",
+    "deploy": "deployctl deploy --prod --project qiyam"
   },
   "imports": {
     "oak": "jsr:@oak/oak@^17.1.4",
@@ -11,11 +11,11 @@
     "multer": "npm:multer@^1.4.5-lts.1"
   },
   "deploy": {
-    "project": "3972b5ce-9a45-4145-9081-8c75db4b0ce1",
+    "project": "d36959c5-b8f3-4f68-ab7b-d43e51f8cbd0",
     "exclude": [
       "**/node_modules"
     ],
     "include": [],
-    "entrypoint": "main.ts"
+    "entrypoint": "backend/main.ts"
   }
 }

@@ -14,17 +14,34 @@ const DeleteIcon = () => (
   </svg>
 );
 
+const CheckIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+);
+
 interface QuestionCardProps {
   question: Question;
   onEdit: (question: Question) => void;
   onDelete: (id: string) => void;
+  onToggleAnswered: (question: Question) => void;
 }
 
-export default function QuestionCard({ question, onEdit, onDelete }: QuestionCardProps) {
-  const cardClasses = `bg-gray-700 p-4 rounded-lg shadow-md relative transition-opacity ${question.isAnswered ? 'opacity-50' : 'opacity-100'}`;
+export default function QuestionCard({ question, onEdit, onDelete, onToggleAnswered }: QuestionCardProps) {
+  const cardClasses = `bg-gray-700 p-4 rounded-lg shadow-md relative transition-all duration-200 cursor-pointer hover:bg-gray-600 ${
+    question.isAnswered ? 'opacity-60 border-l-4 border-green-500' : 'opacity-100 border-l-4 border-transparent'
+  }`;
+  
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't toggle if clicking on edit or delete buttons
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    onToggleAnswered(question);
+  };
   
   return (
-    <div className={cardClasses}>
+    <div className={cardClasses} onClick={handleCardClick}>
       <div className="absolute top-2 right-2 flex flex-col gap-2">
         <button onClick={() => onEdit(question)} className="text-blue-400 hover:text-blue-300">
           <EditIcon />
@@ -33,6 +50,14 @@ export default function QuestionCard({ question, onEdit, onDelete }: QuestionCar
           <DeleteIcon />
         </button>
       </div>
+      
+      {/* Answered indicator */}
+      {question.isAnswered && (
+        <div className="absolute top-2 left-2 text-green-400">
+          <CheckIcon />
+        </div>
+      )}
+      
       <div className="pr-8">
         <p className="font-bold text-lg mb-2">{question.question}</p>
         <p className="text-gray-300 mb-1">
@@ -40,6 +65,9 @@ export default function QuestionCard({ question, onEdit, onDelete }: QuestionCar
         </p>
         <p className="text-gray-400">
           <span className="font-semibold">النقاط:</span> {question.points}
+        </p>
+        <p className="text-sm text-gray-500 mt-2">
+          {question.isAnswered ? '✅ مجاب عليه' : '❌ غير مجاب عليه'}
         </p>
       </div>
     </div>

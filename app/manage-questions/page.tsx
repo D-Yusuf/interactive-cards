@@ -103,12 +103,21 @@ export default function ManageQuestionsPage() {
     });
   }, [categories, selectedCategoryId, searchText, selectedPoints, answeredFilter]);
 
-  // Sort questions: unanswered first, then answered
+  // Check if any filters are active
+  const hasActiveFilters = searchText !== '' || selectedPoints !== '' || answeredFilter !== 'all';
+
+  // Sort questions: unanswered first, then answered (only when filters are applied)
   const sortedQuestions = useMemo(() => {
-    return [...filteredQuestions].sort((a, b) => 
-      (a.isAnswered === b.isAnswered) ? 0 : a.isAnswered ? 1 : -1
-    );
-  }, [filteredQuestions]);
+    if (hasActiveFilters) {
+      // When filters are applied, sort answered questions to bottom
+      return [...filteredQuestions].sort((a, b) => 
+        (a.isAnswered === b.isAnswered) ? 0 : a.isAnswered ? 1 : -1
+      );
+    } else {
+      // Default view: keep original order
+      return filteredQuestions;
+    }
+  }, [filteredQuestions, hasActiveFilters]);
 
   const handleAddClick = () => {
     setEditingQuestion(null);
@@ -123,6 +132,33 @@ export default function ManageQuestionsPage() {
   const handleDeleteClick = (id: string) => {
     setDeletingQuestionId(id);
     setDeleteModalOpen(true);
+  };
+
+  const handleToggleAnswered = async (question: Question) => {
+    try {
+      // Optimistic update
+      const updatedQuestion = { ...question, isAnswered: !question.isAnswered };
+      setCategories(prev => prev.map(c => ({
+        ...c,
+        questions: c.questions.map(q => 
+          q._id === question._id ? updatedQuestion : q
+        )
+      })));
+
+      // Update in backend
+      await updateQuestion(question._id, { isAnswered: !question.isAnswered });
+      console.log('Question answered status toggled successfully');
+    } catch (err: any) {
+      if (err.message === 'Admin privileges required') {
+        setError('يجب أن تكون مسجلاً كمسؤول لتغيير حالة السؤال');
+      } else {
+        setError('فشل في تغيير حالة السؤال. يرجى المحاولة مرة أخرى.');
+      }
+      console.error('Error toggling question answered status:', err);
+      
+      // Revert optimistic update on error
+      fetchData();
+    }
   };
 
   const handleFormSubmit = async (data: Partial<Question> & { category: string }) => {
@@ -255,8 +291,6 @@ export default function ManageQuestionsPage() {
     setAnsweredFilter('all');
   };
 
-  const hasActiveFilters = searchText !== '' || selectedPoints !== '' || answeredFilter !== 'all';
-
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -351,7 +385,7 @@ export default function ManageQuestionsPage() {
           <div className="flex flex-col gap-4">
             {sortedQuestions.length > 0 ? (
               sortedQuestions.map(q => (
-                <QuestionCard key={q._id} question={q} onEdit={handleEditClick} onDelete={handleDeleteClick} />
+                <QuestionCard key={q._id} question={q} onEdit={handleEditClick} onDelete={handleDeleteClick} onToggleAnswered={handleToggleAnswered} />
               ))
             ) : (
               <div className="text-center py-8 text-gray-400">
