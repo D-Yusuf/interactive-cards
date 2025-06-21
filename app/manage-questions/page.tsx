@@ -201,12 +201,16 @@ export default function ManageQuestionsPage() {
           ));
         }
       }
+      
       setFormModalOpen(false);
-    } catch (err) {
-      console.error('Error in form submit:', err);
-      setError('فشلت العملية: ' + (err instanceof Error ? err.message : 'خطأ غير معروف'));
-      // Revert optimistic update on error
-      fetchData();
+      setEditingQuestion(null);
+    } catch (err: any) {
+      if (err.message === 'Admin privileges required') {
+        setError('يجب أن تكون مسجلاً كمسؤول لإدارة الأسئلة');
+      } else {
+        setError('فشل في حفظ السؤال. يرجى المحاولة مرة أخرى.');
+      }
+      console.error('Error saving question:', err);
     }
   };
 
@@ -215,10 +219,16 @@ export default function ManageQuestionsPage() {
     
     try {
       // Optimistic update
-      setCategories(prev => prev.map(c => ({
-        ...c,
-        questions: c.questions.filter(q => q._id !== deletingQuestionId)
-      })));
+      const questionToDelete = categories
+        .flatMap(c => c.questions)
+        .find(q => q._id === deletingQuestionId);
+      
+      if (questionToDelete) {
+        setCategories(prev => prev.map(c => ({
+          ...c,
+          questions: c.questions.filter(q => q._id !== deletingQuestionId)
+        })));
+      }
 
       // Delete from backend
       await deleteQuestion(deletingQuestionId);
@@ -226,9 +236,14 @@ export default function ManageQuestionsPage() {
       
       setDeleteModalOpen(false);
       setDeletingQuestionId(null);
-    } catch (err) {
+    } catch (err: any) {
+      if (err.message === 'Admin privileges required') {
+        setError('يجب أن تكون مسجلاً كمسؤول لحذف الأسئلة');
+      } else {
+        setError('فشل في حذف السؤال. يرجى المحاولة مرة أخرى.');
+      }
       console.error('Error deleting question:', err);
-      setError('فشل في حذف السؤال: ' + (err instanceof Error ? err.message : 'خطأ غير معروف'));
+      
       // Revert optimistic update on error
       fetchData();
     }

@@ -1,6 +1,7 @@
 import { RouterContext } from "oak/router";
 import Question from "../../models/Question.ts";
 import Category from "../../models/Category.ts";
+import Game from "../../models/Game.ts";
 // Create a new question
 export async function createQuestion(ctx: RouterContext<"/questions">) {
   try {
@@ -135,6 +136,96 @@ export async function deleteQuestion(ctx: RouterContext<"/questions/:id">) {
     ctx.response.status = 500;
     ctx.response.body = { 
       error: error instanceof Error ? error.message : 'Failed to delete question'
+    };
+  }
+}
+
+// Track answered question in game
+export async function trackAnsweredQuestion(ctx: RouterContext<"/questions/:id/answer">) {
+  try {
+    const { id } = ctx.params;
+    const body = await ctx.request.body.json();
+    const { gameId, teamName, points } = body;
+    
+    const question = await Question.findById(id);
+    if (!question) {
+      ctx.response.status = 404;
+      ctx.response.body = { error: 'Question not found' };
+      return;
+    }
+    
+    const game = await Game.findById(gameId);
+    if (!game) {
+      ctx.response.status = 404;
+      ctx.response.body = { error: 'Game not found' };
+      return;
+    }
+    
+    // Add to answered questions
+    await Game.findByIdAndUpdate(gameId, {
+      $push: {
+        answeredQuestions: {
+          questionId: id,
+          teamName: teamName,
+          points: points
+        }
+      }
+    });
+    
+    ctx.response.body = { message: 'Question tracked successfully' };
+  } catch (error: unknown) {
+    ctx.response.status = 500;
+    ctx.response.body = { 
+      error: error instanceof Error ? error.message : 'Failed to track answered question'
+    };
+  }
+}
+
+// Reset questions for a game (admin function)
+export async function resetQuestionsForGame(ctx: RouterContext<"/questions/reset-game/:gameId">) {
+  try {
+    const { gameId } = ctx.params;
+    
+    // Reset all questions that were used in this game
+    const result = await Question.updateMany(
+      { game: gameId },
+      { 
+        game: null,
+        isAnswered: false
+      }
+    );
+    
+    ctx.response.body = { 
+      message: `Reset ${result.modifiedCount} questions for game ${gameId}`,
+      modifiedCount: result.modifiedCount
+    };
+  } catch (error: unknown) {
+    ctx.response.status = 500;
+    ctx.response.body = { 
+      error: error instanceof Error ? error.message : 'Failed to reset questions for game'
+    };
+  }
+}
+
+// Reset all questions (for testing)
+export async function resetAllQuestions(ctx: RouterContext<"/questions/reset-all">) {
+  try {
+    const result = await Question.updateMany(
+      {},
+      { 
+        game: null,
+        isAnswered: false
+      }
+    );
+    
+    ctx.response.body = { 
+      message: `Reset ${result.modifiedCount} questions`,
+      modifiedCount: result.modifiedCount
+    };
+  } catch (error: unknown) {
+    ctx.response.status = 500;
+    ctx.response.body = { 
+      error: error instanceof Error ? error.message : 'Failed to reset all questions'
     };
   }
 } 

@@ -26,7 +26,11 @@ const questionSchema = new Schema({
     type: Boolean,
     default: false
   },
-
+  game: {
+    type: Schema.Types.ObjectId,
+    ref: 'Game',
+    default: null
+  }
 }, {
   timestamps: true
 });

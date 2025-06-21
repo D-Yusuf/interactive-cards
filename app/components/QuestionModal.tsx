@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Question } from '../types';
 
 interface QuestionModalProps {
@@ -12,6 +12,11 @@ interface QuestionModalProps {
 
 export default function QuestionModal({ question, onClose, onCorrectAnswer, firstTeamName, secondTeamName }: QuestionModalProps) {
   const [showAnswer, setShowAnswer] = useState(false);
+
+  // Reset showAnswer state when question changes
+  useEffect(() => {
+    setShowAnswer(false);
+  }, [question]);
 
   if (!question) return null;
 
@@ -38,12 +43,14 @@ export default function QuestionModal({ question, onClose, onCorrectAnswer, firs
         <h2 className="text-3xl font-bold mb-4 text-cyan-400">{question.question}</h2>
         
         {!showAnswer ? (
-          <button
-            onClick={handleRevealAnswer}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-md text-lg transition-transform transform hover:scale-105"
-          >
-            {question.isAnswered ? 'إظهار الإجابة مرة أخرى' : 'إظهار الإجابة'}
-          </button>
+          <div>
+            <button
+              onClick={handleRevealAnswer}
+              className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-md text-lg transition-transform transform hover:scale-105"
+            >
+              {question.isAnswered ? 'إظهار الإجابة مرة أخرى' : 'إظهار الإجابة'}
+            </button>
+          </div>
         ) : (
           <div>
             <p className="text-2xl font-semibold text-white my-6 bg-gray-700 p-4 rounded-md">{question.answer}</p>

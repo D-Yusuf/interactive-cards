@@ -5,6 +5,7 @@ export interface Question {
   answer: string;
   points: number;
   isAnswered: boolean;
+  game?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,6 +30,17 @@ export interface Game {
   currentQuestion: number;
   status: 'ongoing' | 'completed';
   winner?: string | null;
+  answeredQuestions?: Array<{
+    questionId: string;
+    teamName: string;
+    points: number;
+    answeredAt: string;
+  }>;
+  selectedQuestions?: Array<{
+    categoryId: string;
+    pointValue: number;
+    questionId: string;
+  }>;
   createdAt: string;
   updatedAt: string;
 }
@@ -45,6 +57,12 @@ export interface UpdateGameRequest {
   secondTeamScore?: number;
   status?: 'ongoing' | 'completed';
   winner?: string | null;
+  answeredQuestions?: Array<{
+    questionId: string;
+    teamName: string;
+    points: number;
+    answeredAt: string;
+  }>;
 }
 
 export interface CreateQuestionRequest {

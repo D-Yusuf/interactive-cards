@@ -1,4 +1,4 @@
-import { Category, Question } from '../types';
+import { Category, Question, Game } from '../types';
 
 const CACHE_KEYS = {
   CATEGORIES: 'quiz_categories_cache',
@@ -10,12 +10,25 @@ const CACHE_VERSION = '1.0.0';
 
 export interface CacheData {
   categories: Category[];
+  categoriesTimestamp: number;
+  game: Game | null;
+  gameTimestamp: number;
   lastUpdate: number;
   version: string;
 }
 
 class CacheService {
   private isInitialized = false;
+  private cache: CacheData = {
+    categories: [],
+    categoriesTimestamp: 0,
+    game: null,
+    gameTimestamp: 0,
+    lastUpdate: 0,
+    version: CACHE_VERSION
+  };
+
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // Initialize cache
   init() {
@@ -28,6 +41,9 @@ class CacheService {
       localStorage.setItem(CACHE_KEYS.CACHE_VERSION, CACHE_VERSION);
     }
     
+    // Clear game cache on initialization as requested
+    this.clearGame();
+    
     this.isInitialized = true;
   }
 
@@ -35,39 +51,35 @@ class CacheService {
   getCategories(): Category[] | null {
     this.init();
     
+    const cached = localStorage.getItem('categoriesCache');
+    if (!cached) return null;
+
     try {
-      const cached = localStorage.getItem(CACHE_KEYS.CATEGORIES);
-      const lastUpdate = localStorage.getItem(CACHE_KEYS.LAST_UPDATE);
+      const { data, timestamp } = JSON.parse(cached);
+      const isExpired = Date.now() - timestamp > this.CACHE_DURATION;
       
-      if (!cached || !lastUpdate) return null;
-      
-      const data: CacheData = JSON.parse(cached);
-      
-      // Always return cached data if it exists (no duration check)
-      return data.categories;
-    } catch (error) {
-      console.error('Error reading cache:', error);
-      this.clearCache();
+      if (isExpired) {
+        localStorage.removeItem('categoriesCache');
+        return null;
+      }
+
+      this.cache.categories = data;
+      this.cache.categoriesTimestamp = timestamp;
+      return data;
+    } catch {
+      localStorage.removeItem('categoriesCache');
       return null;
     }
   }
 
   // Set categories in cache
   setCategories(categories: Category[]) {
-    this.init();
-    
-    try {
-      const cacheData: CacheData = {
-        categories,
-        lastUpdate: Date.now(),
-        version: CACHE_VERSION
-      };
-      
-      localStorage.setItem(CACHE_KEYS.CATEGORIES, JSON.stringify(cacheData));
-      localStorage.setItem(CACHE_KEYS.LAST_UPDATE, cacheData.lastUpdate.toString());
-    } catch (error) {
-      console.error('Error writing cache:', error);
-    }
+    this.cache.categories = categories;
+    this.cache.categoriesTimestamp = Date.now();
+    localStorage.setItem('categoriesCache', JSON.stringify({
+      data: categories,
+      timestamp: this.cache.categoriesTimestamp
+    }));
   }
 
   // Update a single question in cache
@@ -146,6 +158,7 @@ class CacheService {
   clearCache() {
     localStorage.removeItem(CACHE_KEYS.CATEGORIES);
     localStorage.removeItem(CACHE_KEYS.LAST_UPDATE);
+    localStorage.removeItem('categoriesCache');
   }
 
   // Check if cache exists (not if it's valid by duration)
@@ -157,6 +170,71 @@ class CacheService {
   // Force refresh cache
   invalidateCache() {
     this.clearCache();
+  }
+
+  // Game cache methods
+  setGame(game: Game) {
+    this.cache.game = game;
+    this.cache.gameTimestamp = Date.now();
+    localStorage.setItem('gameCache', JSON.stringify({
+      data: game,
+      timestamp: this.cache.gameTimestamp
+    }));
+  }
+
+  getGame(): Game | null {
+    const cached = localStorage.getItem('gameCache');
+    if (!cached) return null;
+
+    try {
+      const { data, timestamp } = JSON.parse(cached);
+      const isExpired = Date.now() - timestamp > this.CACHE_DURATION;
+      
+      if (isExpired) {
+        localStorage.removeItem('gameCache');
+        return null;
+      }
+
+      this.cache.game = data;
+      this.cache.gameTimestamp = timestamp;
+      return data;
+    } catch {
+      localStorage.removeItem('gameCache');
+      return null;
+    }
+  }
+
+  updateGame(updates: Partial<Game>) {
+    if (this.cache.game) {
+      this.cache.game = { ...this.cache.game, ...updates };
+      this.setGame(this.cache.game);
+    }
+  }
+
+  clearGame() {
+    this.cache.game = null;
+    this.cache.gameTimestamp = 0;
+    localStorage.removeItem('gameCache');
+  }
+
+  clearAll() {
+    this.cache = {
+      categories: [],
+      categoriesTimestamp: 0,
+      game: null,
+      gameTimestamp: 0,
+      lastUpdate: 0,
+      version: CACHE_VERSION
+    };
+    localStorage.removeItem('categoriesCache');
+    localStorage.removeItem('gameCache');
+  }
+
+  // Clear game cache specifically
+  clearGameCache() {
+    this.cache.game = null;
+    this.cache.gameTimestamp = 0;
+    localStorage.removeItem('gameCache');
   }
 }
 

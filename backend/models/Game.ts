@@ -41,6 +41,41 @@ const gameSchema = new Schema({
     type: String,
     default: null
   },
+  answeredQuestions: [{
+    questionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Question',
+      required: true
+    },
+    teamName: {
+      type: String,
+      required: true
+    },
+    points: {
+      type: Number,
+      required: true
+    },
+    answeredAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  selectedQuestions: [{
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true
+    },
+    pointValue: {
+      type: Number,
+      required: true
+    },
+    questionId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Question',
+      required: true
+    }
+  }]
   
 }, { timestamps: true });
 
