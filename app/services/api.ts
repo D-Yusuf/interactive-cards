@@ -11,7 +11,7 @@ import {
 } from '../types';
 import { cacheService } from './cache';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'https://qiyam.deno.dev';
 
 const api = axios.create({
   baseURL: API_URL,
