@@ -136,3 +136,57 @@ body {
 .animate-status-pulse {
   animation: status-pulse 2s ease-in-out infinite;
 }
+
+/* Hamburger menu animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.hamburger-menu-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.hamburger-menu-exit {
+  animation: slideOutRight 0.3s ease-in;
+}
+
+/* Back button hover effects */
+.back-button-hover {
+  transition: all 0.3s ease;
+}
+
+.back-button-hover:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(15px);
+  }
+  
+  .btn-modern {
+    font-size: 0.9rem;
+    padding: 0.75rem 1.5rem;
+  }
+}

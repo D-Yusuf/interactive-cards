@@ -8,6 +8,7 @@ import GameBoard from '../../components/GameBoard';
 import QuestionModal from '../../components/QuestionModal';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import GameOverModal from '../../components/GameOverModal';
+import BackButton from '../../components/BackButton';
 import { Category, Game, Question } from '../../types';
 
 export default function GamePage() {
@@ -191,6 +192,11 @@ export default function GamePage() {
       {/* Main content */}
       <div className="relative z-10 p-8">
         <div className="max-w-7xl mx-auto">
+          {/* Back button - positioned top left */}
+          <div className="mb-6 flex justify-start">
+            <BackButton />
+          </div>
+          
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div className="text-center">

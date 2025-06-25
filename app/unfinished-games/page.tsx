@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getGames, deleteQuestion } from '../services/api';
 import { Game } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
+import BackButton from '../components/BackButton';
 
 // Delete icon
 const DeleteIcon = () => (
@@ -87,6 +88,11 @@ export default function UnfinishedGamesPage() {
   return (
     <div className="min-h-screen gradient-bg-dark text-white p-8">
       <div className="max-w-6xl mx-auto">
+        {/* Back button */}
+        <div className="mb-6">
+          <BackButton />
+        </div>
+        
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>

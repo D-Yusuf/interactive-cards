@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { getGame } from '../../services/api';
 import { Game } from '../../types';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import BackButton from '../../components/BackButton';
 
 export default function ScoreboardPage() {
   const params = useParams();
@@ -48,6 +49,11 @@ export default function ScoreboardPage() {
   return (
     <div dir="rtl" className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
+        {/* Back button */}
+        <div className="mb-6">
+          <BackButton />
+        </div>
+        
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-cyan-400 mb-4">نتيجة اللعبة</h1>
           <h2 className="text-3xl text-gray-300 mb-2">{game.name}</h2>

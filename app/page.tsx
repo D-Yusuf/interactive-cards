@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createGame, resetAllQuestions, clearGameCache } from './services/api';
 import LoginModal from './components/LoginModal';
+import HamburgerMenu from './components/HamburgerMenu';
 import Link from 'next/link';
 
 // Key icon component
@@ -115,35 +116,51 @@ export default function StartPage() {
       {/* Main content with admin controls */}
       <div className="relative z-10 flex flex-col min-h-screen p-4">
         {/* Admin controls */}
-        <div className="flex flex-wrap justify-center gap-3 mb-8 mt-4">
-          {isAdmin && (
-            <>
-              <AdminButton href="/manage-questions" className="bg-blue-600/20 hover:bg-blue-600/30 text-sm py-2 px-4">
-                إدارة الأسئلة
+        <div className="flex justify-between items-start mb-8 mt-4 md:justify-center">
+          {/* Hamburger menu for small screens - positioned top right */}
+          <div className="md:hidden">
+            <HamburgerMenu
+              isAdmin={isAdmin}
+              onResetAllQuestions={handleResetAllQuestions}
+              onLoginClick={() => setLoginModalOpen(true)}
+              onLogout={handleLogout}
+            />
+          </div>
+          
+          {/* Desktop admin buttons - positioned center */}
+          <div className="hidden md:flex flex-wrap justify-center gap-3">
+            {isAdmin && (
+              <>
+                <AdminButton href="/manage-questions" className="bg-blue-600/20 hover:bg-blue-600/30 text-sm py-2 px-4">
+                  إدارة الأسئلة
+                </AdminButton>
+                <AdminButton href="/previous-games" className="bg-purple-600/20 hover:bg-purple-600/30 text-sm py-2 px-4">
+                  الألعاب السابقة
+                </AdminButton>
+                <AdminButton href="/unfinished-games" className="bg-orange-600/20 hover:bg-orange-600/30 text-sm py-2 px-4">
+                  الألعاب غير المكتملة
+                </AdminButton>
+                <AdminButton onClick={handleResetAllQuestions} className="bg-red-600/20 hover:bg-red-600/30 text-sm py-2 px-4">
+                  إعادة تعيين الأسئلة
+                </AdminButton>
+                <div className="flex items-center">
+                  <KeyIcon />
+                </div>
+              </>
+            )}
+            {!isAdmin ? (
+              <AdminButton onClick={() => setLoginModalOpen(true)} className="bg-gray-700/20 hover:bg-gray-700/30 text-sm py-2 px-4">
+                تسجيل الدخول
               </AdminButton>
-              <AdminButton href="/previous-games" className="bg-purple-600/20 hover:bg-purple-600/30 text-sm py-2 px-4">
-                الألعاب السابقة
+            ) : (
+              <AdminButton onClick={handleLogout} className="bg-gray-700/20 hover:bg-gray-700/30 text-sm py-2 px-4">
+                تسجيل الخروج
               </AdminButton>
-              <AdminButton href="/unfinished-games" className="bg-orange-600/20 hover:bg-orange-600/30 text-sm py-2 px-4">
-                الألعاب غير المكتملة
-              </AdminButton>
-              <AdminButton onClick={handleResetAllQuestions} className="bg-red-600/20 hover:bg-red-600/30 text-sm py-2 px-4">
-                إعادة تعيين الأسئلة
-              </AdminButton>
-              <div className="flex items-center">
-                <KeyIcon />
-              </div>
-            </>
-          )}
-          {!isAdmin ? (
-            <AdminButton onClick={() => setLoginModalOpen(true)} className="bg-gray-700/20 hover:bg-gray-700/30 text-sm py-2 px-4">
-              تسجيل الدخول
-            </AdminButton>
-          ) : (
-            <AdminButton onClick={handleLogout} className="bg-gray-700/20 hover:bg-gray-700/30 text-sm py-2 px-4">
-              تسجيل الخروج
-            </AdminButton>
-          )}
+            )}
+          </div>
+          
+          {/* Empty div for spacing on mobile */}
+          <div className="md:hidden w-12"></div>
         </div>
 
         {isLoginModalOpen && (

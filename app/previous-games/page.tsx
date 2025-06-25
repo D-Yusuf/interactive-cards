@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getGames, resetQuestionsForGame } from '../services/api';
 import { Game } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
+import BackButton from '../components/BackButton';
 
 export default function PreviousGamesPage() {
   const [games, setGames] = useState<Game[]>([]);
@@ -53,6 +54,11 @@ export default function PreviousGamesPage() {
   return (
     <div dir="rtl" className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-7xl mx-auto">
+        {/* Back button - positioned top left */}
+        <div className="mb-6 flex justify-start">
+          <BackButton />
+        </div>
+        
         <h1 className="text-4xl font-bold text-center mb-8 text-cyan-400">الألعاب السابقة</h1>
         
         {games.length === 0 ? (

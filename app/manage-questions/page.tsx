@@ -8,6 +8,7 @@ import QuestionCard from '../components/manage-questions/QuestionCard';
 import QuestionFormModal from '../components/manage-questions/QuestionFormModal';
 import ConfirmDeleteModal from '../components/manage-questions/ConfirmDeleteModal';
 import CacheStatus from '../components/CacheStatus';
+import BackButton from '../components/BackButton';
 
 // Add icon
 const AddIcon = () => (
@@ -297,6 +298,11 @@ export default function ManageQuestionsPage() {
     <>
       <div dir="rtl" className="min-h-screen bg-gray-900 text-white p-8">
         <div className="max-w-4xl mx-auto">
+          {/* Back button - positioned top left */}
+          <div className="mb-6 flex justify-start">
+            <BackButton />
+          </div>
+          
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-4xl font-bold text-cyan-400">إدارة الأسئلة</h1>
             <CacheStatus />
