@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getGame, getCategories, updateGame, markQuestionAsAnswered, getCachedCategories, endGame, trackAnsweredQuestion, clearGameCache } from '../../services/api.ts';
-import TeamScore from '../../components/TeamScore.tsx';
-import GameBoard from '../../components/GameBoard.tsx';
-import QuestionModal from '../../components/QuestionModal.tsx';
-import LoadingSpinner from '../../components/LoadingSpinner.tsx';
-import GameOverModal from '../../components/GameOverModal.tsx';
-import BackButton from '../../components/BackButton.tsx';
-import { Game, Question, Category } from "../../types/index.ts";
+import { getGame, getCategories, updateGame, markQuestionAsAnswered, getCachedCategories, endGame, trackAnsweredQuestion, clearGameCache } from '../../services/api';
+import TeamScore from '../../components/TeamScore';
+import GameBoard from '../../components/GameBoard';
+import QuestionModal from '../../components/QuestionModal';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import GameOverModal from '../../components/GameOverModal';
+import BackButton from '../../components/BackButton';
+import { Game, Question, Category } from "../../types/index";
 export default function GamePage() {
   const params = useParams();
   const router = useRouter();

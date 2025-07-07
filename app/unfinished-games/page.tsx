@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getGames } from '../services/api.ts';
-import { Game } from '../types/index.ts';
-import LoadingSpinner from '../components/LoadingSpinner.tsx';
-import BackButton from '../components/BackButton.tsx';
+import { getGames } from '../services/api';
+import { Game } from '../types/index';
+import LoadingSpinner from '../components/LoadingSpinner';
+import BackButton from '../components/BackButton';
 
 // Delete icon
 const DeleteIcon = () => (
