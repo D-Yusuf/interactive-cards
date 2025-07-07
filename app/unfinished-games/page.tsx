@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getGames, deleteQuestion } from '../services/api';
-import { Game } from '../types';
-import LoadingSpinner from '../components/LoadingSpinner';
-import BackButton from '../components/BackButton';
+import { getGames } from '../services/api.ts';
+import { Game } from '../types/index.ts';
+import LoadingSpinner from '../components/LoadingSpinner.tsx';
+import BackButton from '../components/BackButton.tsx';
 
 // Delete icon
 const DeleteIcon = () => (
@@ -36,7 +36,7 @@ export default function UnfinishedGamesPage() {
       setLoading(true);
       const response = await getGames();
       // Filter only ongoing games
-      const unfinishedGames = response.data.filter(game => game.status === 'ongoing');
+      const unfinishedGames = response.data.filter((game: Game) => game.status === 'ongoing');
       setGames(unfinishedGames);
     } catch (err: any) {
       if (err.message === 'Admin privileges required') {

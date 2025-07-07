@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { getGame } from '../../services/api';
-import { Game } from '../../types';
-import LoadingSpinner from '../../components/LoadingSpinner';
-import BackButton from '../../components/BackButton';
+import { getGame } from '../../services/api.ts';
+import { Game } from '../../types/index.ts';
+import LoadingSpinner from '../../components/LoadingSpinner.tsx';
+import BackButton from '../../components/BackButton.tsx';
+import React from 'react';
 
 export default function ScoreboardPage() {
   const params = useParams();
