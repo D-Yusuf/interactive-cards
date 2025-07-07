@@ -1,6 +1,7 @@
 'use client'
-import { useState, useEffect } from 'react';
-import { Question } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Question } from '../types/index.ts';
+import Timer from './Timer.tsx';
 
 interface QuestionModalProps {
   question: Question | null;
@@ -12,27 +13,50 @@ interface QuestionModalProps {
 
 export default function QuestionModal({ question, onClose, onCorrectAnswer, firstTeamName, secondTeamName }: QuestionModalProps) {
   const [showAnswer, setShowAnswer] = useState(false);
+  const [timerActive, setTimerActive] = useState(false);
 
-  // Reset showAnswer state when question changes
+  // Reset showAnswer state and start timer when question changes
   useEffect(() => {
-    setShowAnswer(false);
+    if (question) {
+      setShowAnswer(false);
+      setTimerActive(true);
+    } else {
+      setTimerActive(false);
+    }
   }, [question]);
 
   if (!question) return null;
 
   const handleRevealAnswer = () => {
     setShowAnswer(true);
+    setTimerActive(false); // Stop timer when answer is revealed
   };
 
   const handleTeamSelection = (teamId: 'firstTeam' | 'secondTeam') => {
+    setTimerActive(false); // Stop timer when team is selected
     onCorrectAnswer(teamId);
     // Modal will be closed automatically by the parent component
+  };
+
+  const handleTimeUp = () => {
+    // Timer callback - doesn't need to do anything specific
+    console.log('Timer reached maximum time');
+  };
+
+  const handleClose = () => {
+    setTimerActive(false); // Stop timer when modal is closed
+    onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div className="bg-gray-800 rounded-lg shadow-2xl p-8 max-w-2xl w-full text-center relative">
-        <button onClick={onClose} className="absolute top-4 left-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+        <button onClick={handleClose} className="absolute top-4 left-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+        
+        {/* Timer Display */}
+        <div className="mb-6">
+          <Timer onTimeUp={handleTimeUp} isActive={timerActive} />
+        </div>
         
         {question.isAnswered && (
           <div className="bg-yellow-600 text-white px-4 py-2 rounded-md mb-4">

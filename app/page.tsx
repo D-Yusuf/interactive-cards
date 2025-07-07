@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createGame, resetAllQuestions, clearGameCache } from './services/api';
 import LoginModal from './components/LoginModal';
@@ -52,7 +52,7 @@ export default function StartPage() {
     clearGameCache();
   }, []);
 
-  const handleStartGame = async (e: React.FormEvent) => {
+  const handleStartGame = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAdmin) {
       setError('يجب أن تكون مسجلاً كمسؤول لبدء اللعبة');
@@ -62,24 +62,33 @@ export default function StartPage() {
       setError('يرجى إدخال اسم اللعبة وأسماء الفريقين');
       return;
     }
+
+    // INSTANT user feedback - show loading immediately
     setLoading(true);
-    try {
-      const gameData = {
-        name: gameName,
-        firstTeamName,
-        secondTeamName,
-      };
-      const response = await createGame(gameData);
-      const gameId = response.data._id;
-      router.push(`/game/${gameId}`);
-    } catch (err: any) {
-      if (err.message === 'Admin privileges required') {
-        setError('يجب أن تكون مسجلاً كمسؤول لبدء اللعبة');
-      } else {
-        setError('حدث خطأ أثناء بدء اللعبة. يرجى المحاولة مرة أخرى.');
-      }
-      setLoading(false);
-    }
+    setError(''); // Clear any previous errors
+
+    const gameData = {
+      name: gameName,
+      firstTeamName,
+      secondTeamName,
+    };
+
+    // Create game and navigate instantly on success
+    createGame(gameData)
+      .then(response => {
+        const gameId = response.data._id;
+        // INSTANT navigation - don't keep user waiting
+        router.push(`/game/${gameId}`);
+      })
+      .catch((err: any) => {
+        // Only stop loading on error
+        setLoading(false);
+        if (err.message === 'Admin privileges required') {
+          setError('يجب أن تكون مسجلاً كمسؤول لبدء اللعبة');
+        } else {
+          setError('حدث خطأ أثناء بدء اللعبة. يرجى المحاولة مرة أخرى.');
+        }
+      });
   };
 
   const handleResetAllQuestions = async () => {
@@ -176,7 +185,7 @@ export default function StartPage() {
             {/* Header */}
             <div className="text-center mb-12">
               <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                لعبة الأسئلة
+                الكروت التفاعلية
               </h1>
               <p className="text-xl text-gray-300 font-light">
                 تحدي معرفي ممتع للفرق
@@ -194,7 +203,7 @@ export default function StartPage() {
                     id="gameName"
                     type="text"
                     value={gameName}
-                    onChange={(e) => setGameName(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setGameName(e.target.value)}
                     className="w-full bg-white/10 border border-white/20 rounded-xl py-4 px-6 text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:outline-none backdrop-blur-sm transition-all duration-300"
                   />
                 </div>
@@ -207,7 +216,7 @@ export default function StartPage() {
                     id="firstTeamName"
                     type="text"
                     value={firstTeamName}
-                    onChange={(e) => setFirstTeamName(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstTeamName(e.target.value)}
                     className="w-full bg-white/10 border border-white/20 rounded-xl py-4 px-6 text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:outline-none backdrop-blur-sm transition-all duration-300"
                   />
                 </div>
@@ -220,7 +229,7 @@ export default function StartPage() {
                     id="secondTeamName"
                     type="text"
                     value={secondTeamName}
-                    onChange={(e) => setSecondTeamName(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSecondTeamName(e.target.value)}
                     className="w-full bg-white/10 border border-white/20 rounded-xl py-4 px-6 text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:outline-none backdrop-blur-sm transition-all duration-300"
                   />
                 </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Cairo } from "next/font/google";
+import React from "react";
 import "./globals.css";
-
 const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic", "latin"],
@@ -9,8 +9,9 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "لعبة الأسئلة - Quiz Game",
-  description: "لعبة أسئلة تفاعلية للفرق - Interactive Quiz Game for Teams",
+  title: "الكروت التفاعلية",
+  description: "لعبة أسئلة تفاعلية للفرق",
+  
 };
 
 export default function RootLayout({

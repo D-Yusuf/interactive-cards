@@ -61,7 +61,7 @@ export default function GamePage() {
     setSelectedQuestion(null);
   };
 
-  const handleCorrectAnswer = async (teamId: 'firstTeam' | 'secondTeam') => {
+  const handleCorrectAnswer = (teamId: 'firstTeam' | 'secondTeam') => {
     if (!game || !selectedQuestion) return;
 
     const points = selectedQuestion.points;
@@ -76,7 +76,7 @@ export default function GamePage() {
       answeredAt: new Date().toISOString()
     };
     
-    // Optimistic updates - immediate UI changes
+    // INSTANT UI updates - completely optimistic
     const optimisticGame = { 
       ...game, 
       [`${teamId}Score`]: newScore,
@@ -84,7 +84,7 @@ export default function GamePage() {
     };
     setGame(optimisticGame);
     
-    // Mark question as answered immediately in UI
+    // INSTANT question marking as answered in UI
     setCategories(prev => 
       prev.map(cat => ({
         ...cat,
@@ -96,39 +96,26 @@ export default function GamePage() {
       }))
     );
 
-    // API calls in background
-    trackAnsweredQuestion(selectedQuestion._id, game._id, teamName, points).catch(err => {
-      console.error('Failed to track answered question:', err);
-      if (err.message === 'Admin privileges required') {
-        setError('يجب أن تكون مسجلاً كمسؤول للإجابة على الأسئلة');
-      }
-    });
-    
-    markQuestionAsAnswered(selectedQuestion._id).catch(err => {
-      console.error('Failed to mark question as answered:', err);
-      if (err.message === 'Admin privileges required') {
-        setError('يجب أن تكون مسجلاً كمسؤول للإجابة على الأسئلة');
-      }
-    });
-    
-    updateGame(game._id, { 
-      [`${teamId}Score`]: newScore
-    }).then(updatedGame => {
-      // Don't update the game state from server response to preserve our optimistic updates
-      // The server response might not include the answeredQuestions array properly
-      console.log('Server updated game score, keeping optimistic answeredQuestions');
-    }).catch(err => {
-      console.error('Failed to update game score:', err);
-      if (err.message === 'Admin privileges required') {
-        setError('يجب أن تكون مسجلاً كمسؤول لتحديث النقاط');
-      } else {
-        // Revert optimistic update on error
-        setGame(game);
-      }
-    });
-
-    // Close modal
+    // INSTANT modal close - don't wait for backend
     handleCloseModal();
+
+    // Background async operations - don't block UI or affect user experience
+    Promise.all([
+      trackAnsweredQuestion(selectedQuestion._id, game._id, teamName, points),
+      markQuestionAsAnswered(selectedQuestion._id),
+      updateGame(game._id, { 
+        [`${teamId}Score`]: newScore
+      })
+    ]).then(() => {
+      console.log('Successfully synced question answer with backend');
+    }).catch(err => {
+      console.error('Background sync failed:', err);
+      // Don't revert UI changes - keep optimistic updates
+      // Only log errors, don't disturb user experience
+      if (err.message === 'Admin privileges required') {
+        console.warn('Admin privileges required for backend sync');
+      }
+    });
   };
 
   const handleEndGame = async () => {
@@ -149,6 +136,35 @@ export default function GamePage() {
         }
       }
     }
+  };
+
+  const handleManualScoreChange = (teamId: 'firstTeam' | 'secondTeam', delta: number) => {
+    if (!game) return;
+
+    const scoreField = `${teamId}Score` as keyof typeof game;
+    const currentScore = game[scoreField] as number;
+    const newScore = Math.max(0, currentScore + delta); // Prevent negative scores
+    
+    // INSTANT UI update - no loading states
+    const optimisticGame = { 
+      ...game, 
+      [scoreField]: newScore
+    };
+    setGame(optimisticGame);
+
+    // Background async update - doesn't block UI
+    updateGame(game._id, { 
+      [scoreField]: newScore
+    }).then(() => {
+      console.log(`Updated ${teamId} score to ${newScore}`);
+    }).catch((err: any) => {
+      console.error('Failed to update manual score:', err);
+      // Don't revert UI on error - keep the optimistic update
+      // Only show error message if needed
+      if (err.message === 'Admin privileges required') {
+        setError('يجب أن تكون مسجلاً كمسؤول لتحديث النقاط');
+      }
+    });
   };
 
   if (loading) return <LoadingSpinner />;
@@ -221,13 +237,15 @@ export default function GamePage() {
             <div className="glass-dark rounded-2xl p-6 backdrop-blur-sm border border-white/10">
               <TeamScore 
                 teamName={game.firstTeamName} 
-                score={game.firstTeamScore} 
+                score={game.firstTeamScore}
+                onScoreChange={(delta) => handleManualScoreChange('firstTeam', delta)}
               />
             </div>
             <div className="glass-dark rounded-2xl p-6 backdrop-blur-sm border border-white/10">
               <TeamScore 
                 teamName={game.secondTeamName} 
-                score={game.secondTeamScore} 
+                score={game.secondTeamScore}
+                onScoreChange={(delta) => handleManualScoreChange('secondTeam', delta)}
               />
             </div>
           </div>

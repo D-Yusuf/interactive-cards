@@ -15,6 +15,21 @@ export default function ScoreboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Arabic month names for Gregorian calendar
+  const formatDateArabic = (dateString: string) => {
+    const date = new Date(dateString);
+    const arabicMonths = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    
+    const day = date.getDate();
+    const month = arabicMonths[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${day} ${month} ${year}`;
+  };
+
   useEffect(() => {
     if (!id) return;
     
@@ -142,7 +157,7 @@ export default function ScoreboardPage() {
             </div>
             <div>
               <div className="text-3xl font-bold text-purple-400">
-                {new Date(game.createdAt).toLocaleDateString('ar-SA')}
+                {formatDateArabic(game.createdAt)}
               </div>
               <div className="text-gray-400">تاريخ اللعبة</div>
             </div>

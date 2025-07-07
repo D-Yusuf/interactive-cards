@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getGames, resetQuestionsForGame } from '../services/api';
 import { Game } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -11,6 +11,30 @@ export default function PreviousGamesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [resettingGame, setResettingGame] = useState<string | null>(null);
+
+  // Arabic month names for Gregorian calendar
+  const formatDateArabic = (dateString: string) => {
+    const date = new Date(dateString);
+    const arabicMonths = [
+      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+    ];
+    
+    const day = date.getDate();
+    const month = arabicMonths[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${day} ${month} ${year}`;
+  };
+
+  const formatTimeArabic = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -113,7 +137,7 @@ export default function PreviousGamesPage() {
                 </div>
 
                 <div className="text-sm text-gray-500 text-center">
-                  {new Date(game.createdAt).toLocaleDateString('ar-SA')} - {new Date(game.createdAt).toLocaleTimeString('ar-SA')}
+                  {formatDateArabic(game.createdAt)} - {formatTimeArabic(game.createdAt)}
                 </div>
 
                 {/* Detailed Questions Section */}
@@ -128,7 +152,7 @@ export default function PreviousGamesPage() {
                             <span className="text-yellow-400 font-bold">+{answered.points}</span>
                           </div>
                           <div className="text-gray-400 text-xs mt-1">
-                            {new Date(answered.answeredAt).toLocaleTimeString('ar-SA')}
+                            {formatTimeArabic(answered.answeredAt)}
                           </div>
                         </div>
                       ))}

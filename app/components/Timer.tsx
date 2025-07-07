@@ -20,7 +20,7 @@ export default function Timer({ onTimeUp, isActive }: TimerProps) {
   }, [isActive]);
 
   return (
-    <div className="text-4xl font-bold text-center bg-white/90 px-6 py-2 rounded-lg shadow-lg text-gray-900">
+    <div className="text-xl font-bold text-center w-fit mx-auto  px-6 py-2 rounded-lg shadow-lg border">
       {String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}
     </div>
   );
