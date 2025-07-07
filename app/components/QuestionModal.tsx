@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { Question } from '../types/index';
-import Timer from './Timer.tsx';
+import Timer from './Timer';
 
 interface QuestionModalProps {
   question: Question | null;
