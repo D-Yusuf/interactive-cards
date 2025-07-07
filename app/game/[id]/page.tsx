@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getGame, getCategories, updateGame, markQuestionAsAnswered, getCachedCategories, endGame, trackAnsweredQuestion, clearGameCache } from '../../services/api';
-import TeamScore from '../../components/TeamScore';
-import GameBoard from '../../components/GameBoard';
-import QuestionModal from '../../components/QuestionModal';
-import LoadingSpinner from '../../components/LoadingSpinner';
-import GameOverModal from '../../components/GameOverModal';
-import BackButton from '../../components/BackButton';
-import { Category, Game, Question } from '../../types';
-
+import TeamScore from '../../components/TeamScore.tsx';
+import GameBoard from '../../components/GameBoard.tsx';
+import QuestionModal from '../../components/QuestionModal.tsx';
+import LoadingSpinner from '../../components/LoadingSpinner.tsx';
+import GameOverModal from '../../components/GameOverModal.tsx';
+import BackButton from '../../components/BackButton.tsx';
+import { Category , Question } from '../../types/game.ts';
+import { Game } from "../../types/index.ts";
 export default function GamePage() {
   const params = useParams();
   const router = useRouter();
