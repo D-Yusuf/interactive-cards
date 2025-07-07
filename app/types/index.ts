@@ -19,6 +19,12 @@ export interface Category {
   updatedAt: string;
 }
 
+export interface Team {
+  id: number;
+  name: string;
+  score: number;
+} 
+
 export interface Game {
   _id: string;
   name: string;
